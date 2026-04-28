@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Exams from "./pages/Exams.tsx";
 import Schedule from "./pages/Schedule.tsx";
 import Students from "./pages/Students.tsx";
+import StudentActivity from "./pages/StudentActivity.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
