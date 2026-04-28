@@ -14,6 +14,7 @@ import {
   Tv,
   Settings,
   PanelLeft,
+  Activity,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
