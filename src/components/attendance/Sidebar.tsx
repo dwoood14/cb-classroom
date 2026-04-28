@@ -15,30 +15,30 @@ import {
   Settings,
   PanelLeft,
 } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const mainMenu = [
-  { icon: Home, label: "Overview", shortcut: true },
-  { icon: BookOpen, label: "Class Preparation" },
-  { icon: Clock, label: "Attendance", active: true },
-  { icon: GraduationCap, label: "Exams" },
-  { icon: ClipboardList, label: "Assignment management" },
-  { icon: Calendar, label: "Schedule" },
-  { icon: Users, label: "Students" },
-  { icon: MessageSquare, label: "Messages", badge: 2 },
-  { icon: BarChart3, label: "Analytics" },
-  { icon: FileText, label: "Reports" },
+  { icon: Home, label: "Overview", to: "/", shortcut: true },
+  { icon: BookOpen, label: "Class Preparation", to: "/class-preparation" },
+  { icon: Clock, label: "Attendance", to: "/" },
+  { icon: GraduationCap, label: "Exams", to: "/exams" },
+  { icon: ClipboardList, label: "Assignment management", to: "/assignments" },
+  { icon: Calendar, label: "Schedule", to: "/schedule" },
+  { icon: Users, label: "Students", to: "/students" },
+  { icon: MessageSquare, label: "Messages", to: "/messages", badge: 2 },
+  { icon: BarChart3, label: "Analytics", to: "/analytics" },
+  { icon: FileText, label: "Reports", to: "/reports" },
 ];
 
 const settingsMenu = [
-  { icon: Sparkles, label: "School News" },
-  { icon: Building2, label: "School Activities" },
-  { icon: Tv, label: "What's New" },
+  { icon: Sparkles, label: "School News", to: "/news" },
+  { icon: Building2, label: "School Activities", to: "/activities" },
+  { icon: Tv, label: "What's New", to: "/whats-new" },
 ];
 
-export function Sidebar() {
+export function Sidebar({ activeLabel }: { activeLabel?: string }) {
   return (
     <aside className="w-[260px] shrink-0 flex flex-col bg-gradient-to-b from-sidebar-tint via-white to-white p-4 rounded-l-[24px]">
-      {/* Logo row */}
       <div className="flex items-center justify-between mb-8 px-2">
         <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">
           <div className="w-5 h-5 rounded-full border-[2.5px] border-white border-t-transparent border-b-transparent" />
@@ -48,31 +48,28 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Main menu */}
       <div className="mb-6">
         <p className="text-xs text-muted-foreground px-3 mb-2">Main menu</p>
         <nav className="space-y-1">
           {mainMenu.map((item) => (
-            <MenuItem key={item.label} {...item} />
+            <MenuItem key={item.label} {...item} active={activeLabel === item.label} />
           ))}
         </nav>
       </div>
 
-      {/* Settings & news */}
       <div className="mb-6">
         <p className="text-xs text-muted-foreground px-3 mb-2">Settings and news</p>
         <nav className="space-y-1">
           {settingsMenu.map((item) => (
-            <MenuItem key={item.label} {...item} />
+            <MenuItem key={item.label} {...item} active={activeLabel === item.label} />
           ))}
         </nav>
       </div>
 
       <div className="flex-1" />
 
-      {/* Bottom: Settings + Account */}
       <div className="space-y-3">
-        <MenuItem icon={Settings} label="Settings" />
+        <MenuItem icon={Settings} label="Settings" to="/settings" active={activeLabel === "Settings"} />
         <div className="pt-2">
           <p className="text-xs text-muted-foreground px-3 mb-2">Account</p>
           <div className="flex items-center gap-3 px-2 py-2">
@@ -96,21 +93,23 @@ function MenuItem({
   active,
   badge,
   shortcut,
+  to,
 }: {
   icon: any;
   label: string;
   active?: boolean;
   badge?: number;
   shortcut?: boolean;
+  to?: string;
 }) {
-  return (
-    <button
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
-        active
-          ? "bg-white shadow-sm text-foreground font-medium"
-          : "text-foreground/75 hover:bg-black/5"
-      }`}
-    >
+  const className = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
+    active
+      ? "bg-white shadow-sm text-foreground font-medium"
+      : "text-foreground/75 hover:bg-black/5"
+  }`;
+
+  const content = (
+    <>
       <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={1.75} />
       <span className="flex-1 text-left">{label}</span>
       {shortcut && (
@@ -124,6 +123,15 @@ function MenuItem({
           {badge}
         </span>
       )}
-    </button>
+    </>
   );
+
+  if (to) {
+    return (
+      <NavLink to={to} className={className}>
+        {content}
+      </NavLink>
+    );
+  }
+  return <button className={className}>{content}</button>;
 }
