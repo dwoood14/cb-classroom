@@ -1,5 +1,5 @@
 import { Sidebar } from "@/components/attendance/Sidebar";
-import { AttendanceContent } from "@/components/attendance/AttendaceContent";
+import { AttendanceContent } from "@/components/attendance/AttendanceContent";
 
 const Index = () => {
   return (
