@@ -25,6 +25,7 @@ const mainMenu = [
   { icon: ClipboardList, label: "Assignment management", to: "/assignments" },
   { icon: Calendar, label: "Schedule", to: "/schedule" },
   { icon: Users, label: "Students", to: "/students" },
+  { icon: Activity, label: "Student Activity", to: "/student-activity" },
   { icon: MessageSquare, label: "Messages", to: "/messages", badge: 2 },
   { icon: BarChart3, label: "Analytics", to: "/analytics" },
   { icon: FileText, label: "Reports", to: "/reports" },
