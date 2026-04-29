@@ -1,24 +1,24 @@
-import { Bell, MessageCircle, Search, ChevronRight, Home, SlidersHorizontal, Info, TrendingUp, Activity as ActivityIcon, ChevronDown, RotateCw, X, Check, Search as SearchIcon, BarChart3 } from "lucide-react";
+import { ChevronRight, Home, Info, TrendingUp, Activity as ActivityIcon, ChevronDown, RotateCw, X, Check, Search as SearchIcon, BarChart3 } from "lucide-react";
+import { IconBtn } from "@/components/ui/icon-btn";
+import { FilterPill } from "@/components/ui/filter-pill";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export function StudentsContent() {
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-panel rounded-r-[24px]">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/60">
-        <nav className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Techerly</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          <Home className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-muted-foreground">Students overview</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-foreground font-medium">Amir Baghian</span>
-        </nav>
-        <div className="flex items-center gap-2">
-          <IconBtn><Bell className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-          <IconBtn dot><MessageCircle className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-          <IconBtn><Search className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-        </div>
-      </header>
+      <PageHeader
+        breadcrumbs={
+          <>
+            <span className="text-muted-foreground">Techerly</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <Home className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Students overview</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-foreground font-medium">Amir Baghian</span>
+          </>
+        }
+      />
 
       {/* Profile header */}
       <div className="px-8 pt-6 pb-5 flex items-start justify-between">
@@ -158,24 +158,7 @@ export function StudentsContent() {
   );
 }
 
-function IconBtn({ children, dot }: { children: React.ReactNode; dot?: boolean }) {
-  return (
-    <button className="relative w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground/80">
-      {children}
-      {dot && <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-orange-500" />}
-    </button>
-  );
-}
 
-function FilterPill() {
-  return (
-    <button className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-muted text-sm">
-      <SlidersHorizontal className="w-3.5 h-3.5" />
-      <span>Filter</span>
-      <span className="w-5 h-5 rounded-full bg-foreground text-white text-[11px] flex items-center justify-center font-medium">1</span>
-    </button>
-  );
-}
 
 function StatCard({ icon, title, rightLink, value, subtitle, chart }: { icon: React.ReactNode; title: string; rightLink?: string; value: string; subtitle: string; chart: React.ReactNode }) {
   return (

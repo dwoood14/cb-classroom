@@ -1,14 +1,11 @@
-import { Bell, MessageCircle, Search, ChevronRight, ChevronLeft, BookOpen, SlidersHorizontal, Plus, Check, BarChart3, MoreHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
 
-type ExamCard = {
-  classId: string;
-  className: string;
-  time: string;
-  subject: string;
-  grade: string;
-  confirmed: number;
-  tone: "purple" | "yellow" | "pink" | "blue" | "green" | "orange";
-};
+import { ChevronRight, ChevronLeft, BookOpen, Search, Plus, Check, BarChart3, MoreHorizontal } from "lucide-react";
+import { IconBtn } from "@/components/ui/icon-btn";
+import { FilterPill } from "@/components/ui/filter-pill";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { CalendarGrid } from "@/components/ui/calendar-grid";
+import { examDays, type ExamCard, type ExamDayRow } from "@/data/exams";
 
 const tones = {
   purple: { bg: "bg-violet-100", chipBg: "bg-white", text: "text-foreground" },
@@ -21,65 +18,34 @@ const tones = {
 
 const months = ["Jan", "Feb", "March", "April", "May", "June", "Jul"];
 
-type DayRow = { day: number; label?: string; exams: ExamCard[] };
-
-const days: DayRow[] = [
-  {
-    day: 1,
-    exams: [
-      { classId: "302", className: "Class 302", time: "8:00 am", subject: "Math Exam", grade: "Grade 12", confirmed: 19, tone: "purple" },
-      { classId: "303", className: "Class 303", time: "9:00 am", subject: "Physics Exam", grade: "Grade 10", confirmed: 18, tone: "yellow" },
-    ],
-  },
-  { day: 2, label: "No exam.", exams: [] },
-  {
-    day: 3,
-    exams: [
-      { classId: "304", className: "Class 304", time: "8:00 am", subject: "Art Exam", grade: "Grade 9", confirmed: 20, tone: "pink" },
-      { classId: "302", className: "Class 302", time: "9:00 am", subject: "Math Exam", grade: "Grade 12", confirmed: 19, tone: "blue" },
-      { classId: "305", className: "Class 305", time: "10:00 am", subject: "English Exam", grade: "Grade 11", confirmed: 18, tone: "green" },
-    ],
-  },
-  { day: 4, label: "Weekend", exams: [] },
-  { day: 5, label: "Weekend", exams: [] },
-  {
-    day: 6,
-    exams: [
-      { classId: "303", className: "Class 303", time: "8:00 am", subject: "Physics Exam", grade: "Grade 10", confirmed: 0, tone: "yellow" },
-    ],
-  },
-];
-
-const weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const calendar: (number | null)[][] = [
-  [null, null, null, null, 1, 2, 3],
-  [4, 5, 6, 7, 8, 9, 10],
-  [11, 12, 13, 14, 15, 16, 17],
-  [18, 19, 20, 21, 22, 23, 24],
-  [25, 26, 27, 28, 29, 30, 31],
-];
 const dotsOrange = new Set([1, 5, 20, 26, 29]);
 const dotsBlue = new Set([9]);
 const dotsBlack = new Set([14, 30]);
-const selectedDay = 6;
 
 export function ExamsContent() {
+  const [selectedDay, setSelectedDay] = useState(6);
+  const [selectedMonth, setSelectedMonth] = useState("Feb");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simulate API fetch delay
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, [selectedDay, selectedMonth]);
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-panel rounded-r-[24px]">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/60">
-        <nav className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Maham</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          <BookOpen className="w-3.5 h-3.5 text-foreground" />
-          <span className="text-foreground font-medium">Exams</span>
-        </nav>
-        <div className="flex items-center gap-2">
-          <IconBtn><Bell className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-          <IconBtn dot><MessageCircle className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-          <IconBtn><Search className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-        </div>
-      </header>
+      <PageHeader
+        breadcrumbs={
+          <>
+            <span className="text-muted-foreground">Maham</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <BookOpen className="w-3.5 h-3.5 text-foreground" />
+            <span className="text-foreground font-medium">Exams</span>
+          </>
+        }
+      />
 
       {/* Title row */}
       <div className="px-8 pt-6 pb-5 flex items-start justify-between">
@@ -117,9 +83,9 @@ export function ExamsContent() {
             {months.map((m) => (
               <button
                 key={m}
-                className={`px-5 py-1.5 rounded-full text-sm font-medium ${
-                  m === "Feb" ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                onClick={() => setSelectedMonth(m)}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-colors ${m === selectedMonth ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
               >
                 {m}
               </button>
@@ -130,16 +96,16 @@ export function ExamsContent() {
           </div>
 
           {/* Day rows */}
-          <div className="space-y-5">
-            {days.map((row) => (
-              <DayRowComp key={row.day} row={row} />
+          <div className={`space-y-5 transition-opacity duration-300 ${isLoading ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
+            {examDays.map((row) => (
+              <DayRowComp key={row.day} row={row} selectedDay={selectedDay} />
             ))}
           </div>
         </section>
 
         {/* RIGHT */}
         <aside className="flex flex-col gap-6">
-          <MiniCalendar />
+          <MiniCalendar selectedDay={selectedDay} onSelectDay={setSelectedDay} />
           <UpcomingExams />
         </aside>
       </div>
@@ -147,34 +113,16 @@ export function ExamsContent() {
   );
 }
 
-function IconBtn({ children, dot }: { children: React.ReactNode; dot?: boolean }) {
-  return (
-    <button className="relative w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground/80">
-      {children}
-      {dot && <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-orange-500" />}
-    </button>
-  );
-}
 
-function FilterPill() {
-  return (
-    <button className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-muted text-sm">
-      <SlidersHorizontal className="w-3.5 h-3.5" />
-      <span>Filter</span>
-      <span className="w-5 h-5 rounded-full bg-foreground text-white text-[11px] flex items-center justify-center font-medium">1</span>
-    </button>
-  );
-}
 
-function DayRowComp({ row }: { row: DayRow }) {
+function DayRowComp({ row, selectedDay }: { row: ExamDayRow; selectedDay: number }) {
   const isCurrent = row.day === selectedDay;
   return (
     <div className="flex gap-5 items-start">
       <div className="w-8 flex justify-center pt-3 shrink-0">
         <div
-          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium ${
-            isCurrent ? "bg-foreground text-white" : "text-muted-foreground"
-          }`}
+          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium ${isCurrent ? "bg-foreground text-white" : "text-muted-foreground"
+            }`}
         >
           {row.day}
         </div>
@@ -242,7 +190,7 @@ function ExamCardComp({ exam }: { exam: ExamCard }) {
   );
 }
 
-function MiniCalendar() {
+function MiniCalendar({ selectedDay, onSelectDay }: { selectedDay: number; onSelectDay: (d: number) => void }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -258,33 +206,27 @@ function MiniCalendar() {
         <FilterPill />
       </div>
 
-      <div className="grid grid-cols-7 gap-y-1 text-sm">
-        {weekDays.map((d) => (
-          <div key={d} className="text-center text-muted-foreground text-xs pb-2">
-            {d}
-          </div>
-        ))}
-        {calendar.flat().map((day, i) => {
-          if (day === null) return <div key={i} />;
-          const isSelected = day === selectedDay;
-          return (
-            <div key={i} className="flex flex-col justify-center items-center py-1">
-              <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${
-                  isSelected ? "bg-foreground text-white font-semibold" : "text-muted-foreground/80"
+      <CalendarGrid
+        selectedDay={selectedDay}
+        renderDay={(day, isSelected) => (
+          <button
+            onClick={() => onSelectDay(day)}
+            className="flex flex-col justify-center items-center py-1 w-full cursor-pointer hover:bg-black/5 rounded-lg transition-colors"
+          >
+            <div
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${isSelected ? "bg-foreground text-white font-semibold" : "text-muted-foreground/80"
                 }`}
-              >
-                {day}
-              </div>
-              <div className="h-1.5 flex items-center justify-center">
-                {dotsOrange.has(day) && <span className="w-1 h-1 rounded-full bg-orange-500" />}
-                {dotsBlue.has(day) && <span className="w-1 h-1 rounded-full bg-sky-500" />}
-                {dotsBlack.has(day) && <span className="w-1 h-1 rounded-full bg-foreground" />}
-              </div>
+            >
+              {day}
             </div>
-          );
-        })}
-      </div>
+            <div className="h-1.5 flex items-center justify-center gap-0.5">
+              {dotsOrange.has(day) && <span className="w-1 h-1 rounded-full bg-orange-500" />}
+              {dotsBlue.has(day) && <span className="w-1 h-1 rounded-full bg-sky-500" />}
+              {dotsBlack.has(day) && <span className="w-1 h-1 rounded-full bg-foreground" />}
+            </div>
+          </button>
+        )}
+      />
 
       <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
         <span className="w-1.5 h-1.5 rounded-full bg-foreground" />

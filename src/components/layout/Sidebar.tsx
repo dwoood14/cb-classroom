@@ -15,13 +15,15 @@ import {
   Settings,
   PanelLeft,
   Activity,
+  type LucideIcon,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const mainMenu = [
-  { icon: Home, label: "Overview", to: "/", shortcut: true },
+  { icon: Home, label: "Overview", to: "/overview", shortcut: true },
   { icon: BookOpen, label: "Class Preparation", to: "/class-preparation" },
-  { icon: Clock, label: "Attendance", to: "/" },
+  { icon: Clock, label: "Attendance", to: "/attendance" },
   { icon: GraduationCap, label: "Exams", to: "/exams" },
   { icon: ClipboardList, label: "Assignment management", to: "/assignments" },
   { icon: Calendar, label: "Schedule", to: "/schedule" },
@@ -38,7 +40,7 @@ const settingsMenu = [
   { icon: Tv, label: "What's New", to: "/whats-new" },
 ];
 
-export function Sidebar({ activeLabel }: { activeLabel?: string }) {
+export function Sidebar() {
   return (
     <aside className="w-[260px] shrink-0 flex flex-col bg-gradient-to-b from-sidebar-tint via-white to-white p-4 rounded-l-[24px]">
       <div className="flex items-center justify-between mb-8 px-2">
@@ -54,7 +56,7 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
         <p className="text-xs text-muted-foreground px-3 mb-2">Main menu</p>
         <nav className="space-y-1">
           {mainMenu.map((item) => (
-            <MenuItem key={item.label} {...item} active={activeLabel === item.label} />
+            <MenuItem key={item.label} {...item} />
           ))}
         </nav>
       </div>
@@ -63,7 +65,7 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
         <p className="text-xs text-muted-foreground px-3 mb-2">Settings and news</p>
         <nav className="space-y-1">
           {settingsMenu.map((item) => (
-            <MenuItem key={item.label} {...item} active={activeLabel === item.label} />
+            <MenuItem key={item.label} {...item} />
           ))}
         </nav>
       </div>
@@ -71,7 +73,7 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
       <div className="flex-1" />
 
       <div className="space-y-3">
-        <MenuItem icon={Settings} label="Settings" to="/settings" active={activeLabel === "Settings"} />
+        <MenuItem icon={Settings} label="Settings" to="/settings" />
         <div className="pt-2">
           <p className="text-xs text-muted-foreground px-3 mb-2">Account</p>
           <div className="flex items-center gap-3 px-2 py-2">
@@ -92,23 +94,17 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
 function MenuItem({
   icon: Icon,
   label,
-  active,
   badge,
   shortcut,
   to,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
-  active?: boolean;
   badge?: number;
   shortcut?: boolean;
   to?: string;
 }) {
-  const className = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
-    active
-      ? "bg-white shadow-sm text-foreground font-medium"
-      : "text-foreground/75 hover:bg-black/5"
-  }`;
+  const baseClassName = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors";
 
   const content = (
     <>
@@ -130,10 +126,22 @@ function MenuItem({
 
   if (to) {
     return (
-      <NavLink to={to} className={className}>
+      <NavLink
+        to={to}
+        end={to === "/"}
+        className={({ isActive }) =>
+          cn(
+            baseClassName,
+            isActive
+              ? "bg-white shadow-sm text-foreground font-medium"
+              : "text-foreground/75 hover:bg-black/5"
+          )
+        }
+      >
         {content}
       </NavLink>
     );
   }
-  return <button className={className}>{content}</button>;
+
+  return <button className={cn(baseClassName, "text-foreground/75 hover:bg-black/5")}>{content}</button>;
 }

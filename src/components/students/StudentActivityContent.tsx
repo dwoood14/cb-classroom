@@ -1,91 +1,60 @@
-import { Bell, MessageCircle, Search, ChevronRight, ChevronLeft, Users, SlidersHorizontal, ChevronDown, FileText, Calendar as CalIcon, Pencil, CheckCircle2, Eye, Download, Fingerprint, Monitor, ListChecks, Check, X, Lock, MoreHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronRight, ChevronLeft, Users, ChevronDown, FileText, Calendar as CalIcon, Pencil, CheckCircle2, Eye, Download, Fingerprint, Monitor, ListChecks, Check, X, Lock, MoreHorizontal } from "lucide-react";
+import { IconBtn } from "@/components/ui/icon-btn";
+import { FilterPill } from "@/components/ui/filter-pill";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { CalendarGrid } from "@/components/ui/calendar-grid";
+import { activityDays, type Activity, type ActivityDayRow } from "@/data/activity";
+import * as LucideIcons from "lucide-react";
 
-type Activity = {
-  title: string;
-  time: string;
-  tone: string;
-  iconBg: string;
-  icon: React.ReactNode;
+const iconMap: Record<string, React.ElementType> = {
+  FileText: LucideIcons.FileText,
+  Calendar: LucideIcons.Calendar,
+  Pencil: LucideIcons.Pencil,
+  CheckCircle2: LucideIcons.CheckCircle2,
+  Eye: LucideIcons.Eye,
+  Download: LucideIcons.Download,
+  Fingerprint: LucideIcons.Fingerprint,
+  Monitor: LucideIcons.Monitor,
+  ListChecks: LucideIcons.ListChecks,
 };
 
-type DayRow = { day: number; label?: string; events: Activity[]; badge?: number };
-
-const days: DayRow[] = [
-  {
-    day: 1,
-    events: [
-      { title: "Assignment Sent", time: "6:45 am", tone: "bg-violet-100", iconBg: "bg-white text-foreground", icon: <FileText className="w-4 h-4" /> },
-      { title: "Absent from class", time: "6:00 am", tone: "bg-amber-100", iconBg: "bg-white text-foreground", icon: <CalIcon className="w-4 h-4" /> },
-    ],
-  },
-  { day: 2, label: "No events.", events: [] },
-  {
-    day: 3,
-    events: [
-      { title: "Assignment edited", time: "6:45 am", tone: "bg-rose-100", iconBg: "bg-white text-foreground", icon: <Pencil className="w-4 h-4" /> },
-      { title: "Present in class", time: "6:00 am", tone: "bg-emerald-100", iconBg: "bg-white text-foreground", icon: <CheckCircle2 className="w-4 h-4" /> },
-      { title: "Lesson Viewed", time: "6:45 am", tone: "bg-sky-100", iconBg: "bg-white text-foreground", icon: <Eye className="w-4 h-4" /> },
-    ],
-  },
-  { day: 4, label: "Weekend", events: [] },
-  { day: 5, label: "Weekend", events: [] },
-  {
-    day: 6,
-    events: [
-      { title: "PDF / file downloaded", time: "6:45 am", tone: "bg-violet-100", iconBg: "bg-white text-foreground", icon: <Download className="w-4 h-4" /> },
-      { title: "Changed account Password", time: "6:45 am", tone: "bg-sky-100", iconBg: "bg-white text-foreground", icon: <Fingerprint className="w-4 h-4" /> },
-    ],
-  },
-  { day: 7, label: "No events.", events: [] },
-  { day: 8, label: "No events.", events: [] },
-  {
-    day: 9,
-    badge: 9,
-    events: [
-      { title: "Exam viewed", time: "6:45 am", tone: "bg-violet-100", iconBg: "bg-white text-foreground", icon: <Pencil className="w-4 h-4" /> },
-      { title: "Present in class", time: "6:00 am", tone: "bg-emerald-100", iconBg: "bg-white text-foreground", icon: <CheckCircle2 className="w-4 h-4" /> },
-      { title: "Joined live session", time: "6:45 am", tone: "bg-violet-100", iconBg: "bg-white text-foreground", icon: <Monitor className="w-4 h-4" /> },
-      { title: "Study plan viewed", time: "6:00 am", tone: "bg-rose-100", iconBg: "bg-white text-foreground", icon: <ListChecks className="w-4 h-4" /> },
-    ],
-  },
-];
+import React from "react";
 
 const months = ["Jan", "Feb", "March", "April", "May", "June", "Jul"];
-const weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const calendar: (number | null)[][] = [
-  [null, null, null, null, 1, 2, 3],
-  [4, 5, 6, 7, 8, 9, 10],
-  [11, 12, 13, 14, 15, 16, 17],
-  [18, 19, 20, 21, 22, 23, 24],
-  [25, 26, 27, 28, 29, 30, 31],
-];
+
 const dotPresent = new Set([1, 2, 5, 7, 14]);
 const dotAbsent = new Set([6]);
 const dotEvents = new Set([9, 14, 20, 26, 29, 30]);
-const selectedDay = 9;
 
 export function StudentActivityContent() {
+  const [selectedDay, setSelectedDay] = useState(9);
+  const [selectedMonth, setSelectedMonth] = useState("Feb");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, [selectedDay, selectedMonth]);
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-panel rounded-r-[24px]">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/60">
-        <nav className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Techerly</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          <Users className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-muted-foreground">Students</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-muted-foreground">Activity</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center text-white text-[10px] font-medium">A</div>
-          <span className="text-foreground font-medium flex items-center gap-1">Amirbaqian <ChevronDown className="w-3.5 h-3.5" /></span>
-        </nav>
-        <div className="flex items-center gap-2">
-          <IconBtn><Bell className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-          <IconBtn dot><MessageCircle className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-          <IconBtn><Search className="w-4 h-4" strokeWidth={1.75} /></IconBtn>
-        </div>
-      </header>
+      <PageHeader
+        breadcrumbs={
+          <>
+            <span className="text-muted-foreground">Techerly</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <Users className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Students</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Activity</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center text-white text-[10px] font-medium">A</div>
+            <span className="text-foreground font-medium flex items-center gap-1">Amirbaqian <ChevronDown className="w-3.5 h-3.5" /></span>
+          </>
+        }
+      />
 
       <div className="px-8 pt-6 pb-8 flex-1 grid grid-cols-[1fr_360px] gap-8">
         {/* LEFT — Activity Calendar */}
@@ -103,8 +72,9 @@ export function StudentActivityContent() {
             {months.map((m) => (
               <button
                 key={m}
-                className={`px-5 py-1.5 rounded-full text-sm font-medium ${
-                  m === "Feb" ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                onClick={() => setSelectedMonth(m)}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  m === selectedMonth ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
                 {m}
@@ -116,16 +86,16 @@ export function StudentActivityContent() {
           </div>
 
           {/* Day rows */}
-          <div className="space-y-5">
-            {days.map((row) => (
-              <DayRowComp key={row.day} row={row} />
+          <div className={`space-y-5 transition-opacity duration-300 ${isLoading ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
+            {activityDays.map((row) => (
+              <DayRowComp key={row.day} row={row} selectedDay={selectedDay} />
             ))}
           </div>
         </section>
 
         {/* RIGHT */}
         <aside className="flex flex-col gap-6">
-          <MiniCalendar />
+          <MiniCalendar selectedDay={selectedDay} onSelectDay={setSelectedDay} />
           <UpcomingEvents />
         </aside>
       </div>
@@ -133,26 +103,9 @@ export function StudentActivityContent() {
   );
 }
 
-function IconBtn({ children, dot }: { children: React.ReactNode; dot?: boolean }) {
-  return (
-    <button className="relative w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground/80">
-      {children}
-      {dot && <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-orange-500" />}
-    </button>
-  );
-}
 
-function FilterPill() {
-  return (
-    <button className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-muted text-sm">
-      <SlidersHorizontal className="w-3.5 h-3.5" />
-      <span>Filter</span>
-      <span className="w-5 h-5 rounded-full bg-foreground text-white text-[11px] flex items-center justify-center font-medium">1</span>
-    </button>
-  );
-}
 
-function DayRowComp({ row }: { row: DayRow }) {
+function DayRowComp({ row, selectedDay }: { row: ActivityDayRow; selectedDay: number }) {
   const isCurrent = row.day === selectedDay;
   return (
     <div className="flex gap-5 items-start border-t border-border/60 pt-4">
@@ -179,10 +132,11 @@ function DayRowComp({ row }: { row: DayRow }) {
 }
 
 function ActivityChip({ ev }: { ev: Activity }) {
+  const Icon = iconMap[ev.icon] ?? LucideIcons.FileText;
   return (
     <div className={`${ev.tone} rounded-xl p-2.5 pr-4 flex items-center gap-3 min-w-[200px]`}>
       <div className={`w-9 h-9 rounded-lg ${ev.iconBg} flex items-center justify-center`}>
-        {ev.icon}
+        <Icon className="w-4 h-4" />
       </div>
       <div className="leading-tight">
         <p className="text-sm font-medium">{ev.title}</p>
@@ -192,7 +146,7 @@ function ActivityChip({ ev }: { ev: Activity }) {
   );
 }
 
-function MiniCalendar() {
+function MiniCalendar({ selectedDay, onSelectDay }: { selectedDay: number; onSelectDay: (d: number) => void }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -208,33 +162,28 @@ function MiniCalendar() {
         <FilterPill />
       </div>
 
-      <div className="grid grid-cols-7 gap-y-1 text-sm">
-        {weekDays.map((d) => (
-          <div key={d} className="text-center text-muted-foreground text-xs pb-2">
-            {d}
-          </div>
-        ))}
-        {calendar.flat().map((day, i) => {
-          if (day === null) return <div key={i} />;
-          const isSelected = day === selectedDay;
-          return (
-            <div key={i} className="flex flex-col justify-center items-center py-1">
-              <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${
-                  isSelected ? "bg-foreground text-white font-semibold" : "text-muted-foreground/80"
-                }`}
-              >
-                {day}
-              </div>
-              <div className="h-1.5 flex items-center justify-center gap-0.5">
-                {dotPresent.has(day) && <Check className="w-2 h-2 text-emerald-500" strokeWidth={4} />}
-                {dotAbsent.has(day) && <X className="w-2 h-2 text-rose-500" strokeWidth={4} />}
-                {dotEvents.has(day) && <span className="w-1 h-1 rounded-full bg-orange-500" />}
-              </div>
+      <CalendarGrid
+        selectedDay={selectedDay}
+        renderDay={(day, isSelected) => (
+          <button
+            onClick={() => onSelectDay(day)}
+            className="flex flex-col justify-center items-center py-1 w-full cursor-pointer hover:bg-black/5 rounded-lg transition-colors"
+          >
+            <div
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${
+                isSelected ? "bg-foreground text-white font-semibold" : "text-muted-foreground/80"
+              }`}
+            >
+              {day}
             </div>
-          );
-        })}
-      </div>
+            <div className="h-1.5 flex items-center justify-center gap-0.5">
+              {dotPresent.has(day) && <Check className="w-2 h-2 text-emerald-500" strokeWidth={4} />}
+              {dotAbsent.has(day) && <X className="w-2 h-2 text-rose-500" strokeWidth={4} />}
+              {dotEvents.has(day) && <span className="w-1 h-1 rounded-full bg-orange-500" />}
+            </div>
+          </button>
+        )}
+      />
 
       <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5"><Check className="w-3 h-3 text-emerald-500" strokeWidth={3} />Present <span className="font-semibold text-foreground">6</span></span>
