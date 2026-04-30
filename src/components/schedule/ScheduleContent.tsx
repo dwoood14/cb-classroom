@@ -56,9 +56,8 @@ export function ScheduleContent() {
               <button
                 key={f}
                 onClick={() => setActiveFilter(f)}
-                className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors ${
-                  isActive ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors ${isActive ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
               >
                 {isActive && f === "All" && (
                   <span className="w-4 h-4 rounded-full bg-emerald-400 flex items-center justify-center">
@@ -92,11 +91,10 @@ export function ScheduleContent() {
             {days.map((d, i) => (
               <div
                 key={d}
-                className={`text-center text-sm py-3 ${
-                  i === 1
+                className={`text-center text-sm py-3 ${i === 1
                     ? "bg-foreground text-white rounded-t-md font-medium"
                     : "text-muted-foreground"
-                }`}
+                  }`}
               >
                 {d}
               </div>

@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, ChevronLeft, Clock, Check, X, RotateCw } from "lucide-react";
-import { IconBtn } from "@/components/ui/icon-btn";
-import { FilterPill } from "@/components/ui/filter-pill";
+import { format, setMonth, startOfMonth, isSameDay } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { CalendarGrid } from "@/components/ui/calendar-grid";
+import { FilterPill } from "@/components/ui/filter-pill";
 import { dummyAttendanceData, getAttendanceData, type Student } from "@/data/attendance";
 
 const monthsList = ["January", "February", "March", "April", "May", "June"];
 
 export function AttendanceContent() {
-  const [selectedDay, setSelectedDay] = useState<number>(9);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2025, 1, 9)); // Feb 9, 2025
   const [selectedClass, setSelectedClass] = useState<string>("302");
-  const [selectedMonthIdx, setSelectedMonthIdx] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState(() => getAttendanceData(9, "302"));
+
+  const selectedDay = selectedDate.getDate();
+  const selectedMonthIdx = selectedDate.getMonth();
 
   // Dynamically calculate highlighted days based on class data keys
   const currentClassData = dummyAttendanceData[selectedClass] ?? dummyAttendanceData["302"];
@@ -31,6 +34,10 @@ export function AttendanceContent() {
     }, 300);
     return () => clearTimeout(timer);
   }, [selectedDay, selectedClass, selectedMonthIdx]);
+
+  const handleMonthChange = (idx: number) => {
+    setSelectedDate(prev => setMonth(startOfMonth(prev), idx));
+  };
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-panel rounded-r-[24px]">
       {/* Top bar */}
@@ -57,18 +64,29 @@ export function AttendanceContent() {
       <div className="px-8 flex items-center justify-between mb-5">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setSelectedMonthIdx((prev) => Math.max(0, prev - 1))}
+            <button
+              onClick={() => handleMonthChange(Math.max(0, selectedMonthIdx - 1))}
               disabled={selectedMonthIdx === 0}
               className="w-7 h-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="text-base font-semibold w-[80px] text-center">
-              {monthsList[selectedMonthIdx]}
-            </span>
-            <button 
-              onClick={() => setSelectedMonthIdx((prev) => Math.min(monthsList.length - 1, prev + 1))}
+            <div className="flex items-center gap-1.5 mx-2">
+              {monthsList.map((m, idx) => (
+                <button
+                  key={m}
+                  onClick={() => handleMonthChange(idx)}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                    idx === selectedMonthIdx ? "bg-foreground text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
+                >
+                  {m.slice(0, 3)}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => handleMonthChange(Math.min(monthsList.length - 1, selectedMonthIdx + 1))}
               disabled={selectedMonthIdx === monthsList.length - 1}
               className="w-7 h-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
@@ -103,30 +121,39 @@ export function AttendanceContent() {
       <div className={`px-8 pb-8 flex-1 grid grid-cols-[1fr_260px_260px_260px] gap-6 transition-opacity duration-300 ${isLoading ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
         {/* Calendar + summary cards */}
         <div className="flex flex-col gap-4">
-          <CalendarGrid
-            selectedDay={selectedDay}
-            renderDay={(day, isSelected) => {
-              const isHighlighted = highlightedDays.has(day);
-              return (
-                <button
-                  key={day}
-                  onClick={() => setSelectedDay(day)}
-                  className="flex justify-center items-center py-1.5 w-full cursor-pointer hover:bg-black/5 rounded-lg transition-colors"
-                >
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${isSelected
-                      ? "bg-foreground text-white font-semibold"
-                      : isHighlighted
-                        ? "bg-muted text-foreground"
-                        : "text-muted-foreground/70"
-                      }`}
-                  >
-                    {day}
-                  </div>
-                </button>
-              );
-            }}
-          />
+          <div className="border border-border/60 rounded-[28px] p-4 bg-white shadow-sm">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              month={selectedDate}
+              onMonthChange={setSelectedDate}
+              className="p-0"
+              components={{
+                DayContent: ({ date }) => {
+                  const day = date.getDate();
+                  const isHighlighted = highlightedDays.has(day);
+                  const isSelected = isSameDay(date, selectedDate);
+                  const isToday = isSameDay(date, new Date());
+
+                  return (
+                    <div className={cn(
+                      "w-full h-full flex items-center justify-center rounded-md transition-colors",
+                      isSelected ? "bg-foreground text-white font-semibold" :
+                        isHighlighted ? "bg-muted text-foreground" : "text-muted-foreground/70"
+                    )}>
+                      <span className={cn(
+                        "text-sm",
+                        isToday && !isSelected && "text-primary font-bold underline"
+                      )}>
+                        {day}
+                      </span>
+                    </div>
+                  );
+                }
+              }}
+            />
+          </div>
           <SummaryCard
             type="success"
             value={`${data.present.length}/24`}

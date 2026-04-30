@@ -73,9 +73,8 @@ export function StudentActivityContent() {
               <button
                 key={m}
                 onClick={() => setSelectedMonth(m)}
-                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  m === selectedMonth ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-colors ${m === selectedMonth ? "bg-foreground text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
               >
                 {m}
               </button>
@@ -111,9 +110,8 @@ function DayRowComp({ row, selectedDay }: { row: ActivityDayRow; selectedDay: nu
     <div className="flex gap-5 items-start border-t border-border/60 pt-4">
       <div className="w-8 flex justify-center pt-2 shrink-0">
         <div
-          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium ${
-            isCurrent ? "bg-foreground text-white" : "text-muted-foreground"
-          }`}
+          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium ${isCurrent ? "bg-foreground text-white" : "text-muted-foreground"
+            }`}
         >
           {row.day}
         </div>
@@ -170,9 +168,8 @@ function MiniCalendar({ selectedDay, onSelectDay }: { selectedDay: number; onSel
             className="flex flex-col justify-center items-center py-1 w-full cursor-pointer hover:bg-black/5 rounded-lg transition-colors"
           >
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${
-                isSelected ? "bg-foreground text-white font-semibold" : "text-muted-foreground/80"
-              }`}
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm transition-colors ${isSelected ? "bg-foreground text-white font-semibold" : "text-muted-foreground/80"
+                }`}
             >
               {day}
             </div>
